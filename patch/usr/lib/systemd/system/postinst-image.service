@@ -1,0 +1,15 @@
+[Unit]
+Description=Postinst image
+After=local-fs.target
+ConditionPathExists=/live-media/postinst
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/live-media
+#ExecStart=/bin/sh -c 'find postinst | sort | cpio -o -H newc | xz -c > postinst.img && rm -Rf postinst'
+#ExecStart=/bin/sh -c 'find postinst | sort | cpio -o -H newc | gzip -c > postinst.img && rm -Rf postinst'
+ExecStart=/bin/sh -c 'find postinst | sort | cpio -o -H newc | zstd -c -q > postinst.img && rm -Rf postinst'
+
+[Install]
+WantedBy=multi-user.target

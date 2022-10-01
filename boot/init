@@ -1,0 +1,156 @@
+#!/bin/sh
+
+parse_cmdline_flag() {
+	cat /proc/cmdline | xargs -rn1 | grep -E "^$1\$" > /dev/null
+}
+
+parse_cmdline_value() {
+	cat /proc/cmdline | xargs -rn1 | grep -E "^$1=" | sed -r "s/^$1=//"
+}
+
+resolve_device() {
+	for _ in $(seq 10)
+	do
+		local DEV=
+
+		case $1 in
+			UUID=*)
+				DEV=$(blkid -U "${1#UUID=}")
+			;;
+			LABEL=*)
+				DEV=$(blkid -L "${1#LABEL=}")
+			;;
+			/dev/*)
+				DEV=$1
+			;;
+			*)
+				echo $1 && return 0
+			;;
+		esac
+
+		test -n "$DEV" && test -e "$DEV" && echo $DEV && return 0
+
+		sleep 1
+	done
+
+	echo "$1 device not found"
+	exit 1
+}
+
+prepare_root() {
+	local PREFIX=$(parse_cmdline_value prefix)
+	test -z "$PREFIX" && PREFIX=livearch
+
+	local MEDIA_DEV=$(parse_cmdline_value media-dev)
+	local MEDIA_FS=$(parse_cmdline_value media-fs)
+	local MEDIA_OPTS=$(parse_cmdline_value media-opts)
+	test -z "${MEDIA_FS}"    && MEDIA_FS=auto
+	test -z "${MEDIA_OPTS}"  && MEDIA_OPTS='ro'
+
+	local PERSIST_DEV=$(parse_cmdline_flag toram || parse_cmdline_value persist-dev)
+	local PERSIST_FS=$(parse_cmdline_value persist-fs)
+	local PERSIST_OPTS=$(parse_cmdline_value persist-opts)
+	test -z "${PERSIST_FS}"   && PERSIST_FS=auto
+	test -z "${PERSIST_OPTS}" && PERSIST_OPTS='rw'
+	test -z "${PERSIST_DEV}"  && PERSIST_DEV=none PERSIST_FS=tmpfs PERSIST_OPTS='size=100%'
+
+	mkdir /live-media
+	test "${PERSIST_FS}" = tmpfs || fsck -y $(resolve_device ${PERSIST_DEV})
+	mount -t ${PERSIST_FS} -o ${PERSIST_OPTS} $(resolve_device ${PERSIST_DEV}) /live-media || exit 1
+
+	if parse_cmdline_flag reset
+	then
+		touch /live-media/do-not-delete
+		sh -c "find /live-media ! -type d ! -path '/live-media/do-not-delete' ! -path '/live-media/cdrom/*' $(printf "! -path '/live-media/upperdir%s' " $(cat /live-media/do-not-delete)) -exec rm {} \;"
+		find /live-media -type d -empty -delete
+	fi
+
+	mkdir -p /live-media/cdrom
+	if test -n "${MEDIA_DEV}" && test -n "$(resolve_device ${MEDIA_DEV})"
+	then
+		fsck -y $(resolve_device ${MEDIA_DEV})
+		mount -t ${MEDIA_FS} -o ${MEDIA_OPTS} $(resolve_device ${MEDIA_DEV}) /live-media/cdrom || exit 1
+	fi
+
+	if parse_cmdline_flag toram && mountpoint /live-media/cdrom
+	then
+		mkdir -p /live-media/toram/$PREFIX
+		find /live-media/cdrom/$PREFIX -maxdepth 1 -type f -name '*.squashfs' -exec cp {} /live-media/toram/$PREFIX \;
+		umount /live-media/cdrom
+		rm -Rf /live-media/cdrom
+		mv /live-media/toram /live-media/cdrom
+	fi
+
+	local LOWERDIR=
+	for SQUASHFS in $(find /live-media/cdrom/$PREFIX -maxdepth 1 -type f -name '*.squashfs' -exec basename {} \; | sort)
+	do
+		mkdir -p /live-media/lowerdirs/$SQUASHFS
+		mount -t squashfs /live-media/cdrom/$PREFIX/$SQUASHFS /live-media/lowerdirs/$SQUASHFS
+		test -n "$LOWERDIR" && LOWERDIR="$LOWERDIR:"
+		LOWERDIR=$LOWERDIR/live-media/lowerdirs/$SQUASHFS
+	done
+
+	if test -z "$LOWERDIR"
+	then
+		echo 'squashfs files not found'
+		exit 1
+	fi
+
+	if test -d /postinst
+	then
+		test -d /live-media/upperdir || cp -a /postinst /live-media/upperdir
+
+		rm -Rf /postinst
+	fi
+
+	mkdir -p /live-media/upperdir /live-media/workdir
+
+	mount -t overlay -o lowerdir=$LOWERDIR,upperdir=/live-media/upperdir,workdir=/live-media/workdir none $ROOT
+
+	if ! test -f $ROOT/sbin/init
+	then
+		echo '/sbin/init not found in new root'
+		exit 1
+	fi
+
+	if ! test -f $ROOT/var/.postinst
+	then
+		touch $ROOT/var/.postinst
+
+		mkdir $ROOT/usr/local/etc/livearch.d
+		cp -a /patch/usr/local/etc/livearch.d/config $ROOT/usr/local/etc/livearch.d/
+		cp -a /patch/usr/local/etc/postinst $ROOT/usr/local/etc/
+		cp -a /patch/usr/local/sbin/postinst.sh $ROOT/usr/local/sbin/
+		cp -a /patch/usr/local/sbin/posthooks.py $ROOT/usr/local/sbin/
+
+		if test -f /etc/plymouth/plymouthd.conf && test -f $ROOT/etc/plymouth/plymouthd.conf
+		then
+			cat /etc/plymouth/plymouthd.conf > $ROOT/etc/plymouth/plymouthd.conf
+		fi
+
+		chroot $ROOT /usr/local/etc/postinst > $ROOT/var/log/postinst.log 2>&1
+
+		rm -Rf $ROOT/usr/local/etc/livearch.d
+		rm $ROOT/usr/local/etc/postinst
+		rm $ROOT/usr/local/sbin/postinst.sh
+		rm $ROOT/usr/local/sbin/posthooks.py
+
+		cp -a /live-media/upperdir /live-media/postinst
+	fi
+
+	if ! test -f $ROOT/var/.preboot
+	then
+		touch $ROOT/var/.preboot
+
+		cp -a /patch/. $ROOT/
+
+		chroot $ROOT /usr/local/etc/preboot > $ROOT/var/log/livearch.log 2>&1
+	fi
+
+	rm -Rf /patch
+
+	mkdir -p $ROOT/live-media
+	mount -M /live-media $ROOT/live-media
+}
+
+prepare_root

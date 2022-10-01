@@ -1,0 +1,12 @@
+[Unit]
+Description=Live sync
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/true
+ExecStop=/usr/bin/mount -o remount,sync / /live-media /live-media/cdrom
+
+[Install]
+WantedBy=multi-user.target

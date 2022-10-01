@@ -1,0 +1,3 @@
+# depends=(package1)
+# depends+=(package2 package3)
+# depends+=(package4 package5 package6)

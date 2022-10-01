@@ -1,0 +1,39 @@
+version: '3.6'
+
+services:
+  livearch-system:
+    build:
+      context: .
+      args:
+        - MIRROR_COUNTRY_CODE=
+    entrypoint: ./system.sh
+    environment:
+      - AUR_PACKAGES=
+      - FILENAME_SUFFIX=latest
+      - SQUASHFS_BLOCK_SIZE=128K
+      - SQUASHFS_COMP=zstd
+      - SQUASHFS_ADDITIONAL_OPTIONS=
+      - PLYMOUTH_INSTALL=yes
+    volumes:
+      - ./pkg-system:/var/cache/pacman/pkg
+      - ./out:/usr/local/src/build/out
+      - ./root:/usr/local/src/build/root
+
+  livearch-boot:
+    build:
+      context: .
+      args:
+        - DEBIAN_IMAGE=busybox
+        - UBUNTU_IMAGE=busybox
+        - MIRROR_COUNTRY_CODE=
+    entrypoint: ./boot.sh
+    environment:
+      - AUR_PACKAGES=
+      - BOOT_PACKAGES=linux
+      - BOOT_SKIP_HOOKS=
+      - BOOT_ADD_HOOKS=
+      - BOOT_PLYMOUTH_THEME=
+      - PLYMOUTH_INSTALL=yes
+    volumes:
+      - ./pkg-boot:/var/cache/pacman/pkg
+      - ./out:/usr/local/src/build/out

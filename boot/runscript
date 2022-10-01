@@ -1,0 +1,9 @@
+#!/usr/bin/ash
+
+run_hook() {
+	ROOT=/new_root /usr/share/livearch/init
+
+	mount_handler=/bin/true
+	fsck_root() { /bin/true; }
+	resolve_device() { /bin/true; }
+}

@@ -1,0 +1,9 @@
+/out/
+/pkg-boot/
+/pkg-system/
+/root/
+/aur/*/
+/opt/pkg-deps/*.pkg.*
+/opt/pkg-nodeps/*.pkg.*
+/PKGBUILD-*
+/docker-compose.yaml

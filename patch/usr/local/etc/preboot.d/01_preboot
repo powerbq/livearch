@@ -1,0 +1,17 @@
+#!/bin/bash
+
+live-common.sh
+live-sudo.sh
+live-fstab.sh
+
+live-ssh.sh
+live-network.sh
+live-accesspoints.sh
+
+live-packages.sh
+
+live-users.sh
+
+live-dm.sh
+
+exit 0

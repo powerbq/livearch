@@ -1,0 +1,17 @@
+#!/bin/bash
+
+mount -t proc     none /proc
+mount -t sysfs    none /sys
+mount -t devtmpfs none /dev
+ln -sf /proc/mounts /etc/mtab
+
+source /usr/local/etc/livearch.d/config
+
+find /usr/local/etc/preboot.d -maxdepth 1 -type f | sort | xargs -rn1 bash
+
+rm /etc/mtab
+umount /dev
+umount /sys
+umount /proc
+
+exit 0

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-create-user.sh $USERNAME $USERID adm,docker
+create-user.sh $USERNAME $USERID yes
 
 if test -z "${HASHED_PASSWORD}"
 then

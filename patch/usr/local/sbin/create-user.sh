@@ -1,34 +1,31 @@
 #!/bin/bash
 
-USERHOME=/home/$1
 USERNAME=$1
-GROUPNAME=$1
 USERID=$2
-GROUPID=$2
-SUPPLEMENTARY_GROUPS=$3
-
-function requested_groups() {
-	echo -n 'users'
-	echo -n ',audio,video'
-	echo -n ',disk,optical,storage,rfkill,sys'
-	echo -n ',lp,uucp'
-	test -n "${SUPPLEMENTARY_GROUPS}" && echo -n ','${SUPPLEMENTARY_GROUPS}
-}
+IS_ADMIN=$3
 
 function present_groups() {
-	for GROUP in $(requested_groups | tr ',' '\n')
+	for GROUP in $@
 	do
 		grep -o "^$GROUP:" /etc/group | tr -d ':'
-	done | tr '\n' ',' | sed 's/,$//'
+	done
 }
 
-groupadd -g $GROUPID $GROUPNAME
-useradd -u $USERID -g $GROUPID -G $(present_groups) -d $USERHOME -s /bin/bash $USERNAME
+groupadd -g $USERID $USERNAME
+useradd -u $USERID -g $USERID -G users -d /home/$USERNAME -s /bin/bash $USERNAME
 
-mkdir -p $USERHOME
-cp -an --no-preserve=ownership /etc/skel/. $USERHOME/
-chown -R $USERID:$GROUPID $USERHOME
+if test "${IS_ADMIN}" = yes
+then
+	for GROUP in $(present_groups adm wheel audio disk floppy input kvm optical scanner storage video)
+	do
+		usermod -a -G $GROUP $USERNAME
+	done
+fi
 
-test -x /usr/bin/xdg-user-dirs-update && sudo -u $USERNAME env LC_ALL=C xdg-user-dirs-update --force
+mkdir -p /home/$USERNAME
+
+cp -a --update=none /etc/skel/. /home/$USERNAME
+
+chown -R $USERNAME:$USERNAME /home/$USERNAME
 
 exit 0

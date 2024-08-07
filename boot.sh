@@ -12,6 +12,7 @@ find /boot -maxdepth 1 -type f -exec rm {} \;
 
 su -c './custom.sh' build
 
+test -n "${BOOT_SKIP_HOOKS}" && BOOT_SKIP_HOOKS="${BOOT_SKIP_HOOKS},"
 test -n "${BOOT_ADD_HOOKS}" && BOOT_ADD_HOOKS="${BOOT_ADD_HOOKS},"
 
 if test "${PLYMOUTH_INSTALL}" = yes
@@ -28,7 +29,7 @@ EOF
 	fi
 fi
 
-sed -i 's/^default_options=.*$/default_options="-S autodetect -A ${BOOT_ADD_HOOKS}livearch"/' /usr/share/mkinitcpio/hook.preset
+sed -i 's/^default_options=.*$/default_options="-S ${BOOT_SKIP_HOOKS}autodetect -A ${BOOT_ADD_HOOKS}livearch"/' /usr/share/mkinitcpio/hook.preset
 
 pacman -Syu --noconfirm intel-ucode amd-ucode ${BOOT_PACKAGES}
 

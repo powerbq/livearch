@@ -172,7 +172,7 @@ for condition in conditions:
 
                         del cmd, proc, out, err, cnt
                     else:
-                        raise Exception('Not implemented')
+                        print('Not implemented')
 
                 del is_invert, target
             del targets, operations, type, trigger

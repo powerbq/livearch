@@ -15,6 +15,7 @@ export HASHED_PASSWORD=
 
 # FLAGS
 export AUTOLOGIN=yes
+export WAYLAND=no
 export NETWORK_SYSTEMD=no
 export ENABLE_SSH=no
 

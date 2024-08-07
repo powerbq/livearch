@@ -30,6 +30,7 @@ services:
     environment:
       - AUR_PACKAGES=
       - BOOT_PACKAGES=linux
+      - BOOT_SKIP_HOOKS=
       - BOOT_ADD_HOOKS=
       - BOOT_PLYMOUTH_THEME=
       - PLYMOUTH_INSTALL=yes

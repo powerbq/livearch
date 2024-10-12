@@ -1,0 +1,19 @@
+version: '3.6'
+
+services:
+  livearch-system:
+    build:
+      context: .
+    entrypoint: ./system.sh
+    volumes:
+      - ./pkg-system:/var/cache/pacman/pkg
+      - ./out:/usr/local/src/build/out
+      - ./root:/usr/local/src/build/root
+
+  livearch-boot:
+    build:
+      context: .
+    entrypoint: ./boot.sh
+    volumes:
+      - ./pkg-boot:/var/cache/pacman/pkg
+      - ./out:/usr/local/src/build/out

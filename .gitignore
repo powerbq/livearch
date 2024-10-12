@@ -6,4 +6,5 @@
 /opt/pkg-deps/*.pkg.*
 /opt/pkg-nodeps/*.pkg.*
 /PKGBUILD-*
-/docker-compose.yaml
+/docker-compose.override.yaml
+/archlinux-bootstrap-*.tar.*

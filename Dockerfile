@@ -78,7 +78,7 @@ RUN groupadd -g 3219 build \
 	&& echo 'build ALL=(ALL:ALL) NOPASSWD:ALL' > /etc/sudoers.d/build
 
 ENV AUR_PACKAGES=
-ENV BOOT_PACKAGES=linux
+ENV BOOT_PACKAGES="linux linux-firmware"
 ENV BOOT_SKIP_HOOKS=
 ENV BOOT_ADD_HOOKS=
 ENV BOOT_PLYMOUTH_THEME=

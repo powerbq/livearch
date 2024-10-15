@@ -61,8 +61,8 @@ prepare_root() {
 	if parse_cmdline_flag reset
 	then
 		touch /live-media/do-not-delete
-		sh -c "find /live-media ! -type d ! -path '/live-media/do-not-delete' ! -path '/live-media/cdrom/*' $(printf "! -path '/live-media/upperdir%s' " $(cat /live-media/do-not-delete)) -exec rm {} \;"
-		find /live-media -type d -empty -delete
+		sh -c "find /live-media ! -type d ! -path '/live-media/do-not-delete' ! -path '/live-media/cdrom/*' $(printf "! -path '/live-media/upperdir%s' " $(cat /live-media/do-not-delete)) -delete"
+		sh -c "find /live-media   -type d -empty                              ! -path '/live-media/cdrom/*' $(printf "! -path '/live-media/upperdir%s' " $(cat /live-media/do-not-delete)) -delete"
 	fi
 
 	mkdir -p /live-media/cdrom

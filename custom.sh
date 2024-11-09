@@ -68,6 +68,11 @@ then
 
 		cd ${AUR_PACKAGE}
 
+		export SRCDEST=$(pwd)/../../src/${AUR_PACKAGE}
+
+		sudo mkdir -p $SRCDEST
+		sudo chown $(id -u):$(id -g) $SRCDEST
+
 		makepkg -cis --skippgpcheck --noconfirm
 
 		cd ..

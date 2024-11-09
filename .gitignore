@@ -3,6 +3,8 @@
 /pkg-system/
 /root/
 /aur/*/
+/src-boot/
+/src-system/
 /opt/pkg-deps/*.pkg.*
 /opt/pkg-nodeps/*.pkg.*
 /PKGBUILD-*

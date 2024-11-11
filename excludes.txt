@@ -1,0 +1,3 @@
+.dockerenv
+
+usr/local/src/build

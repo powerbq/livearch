@@ -7,10 +7,7 @@ echo $0
 list() {
 	ls /var/cache/pacman/pkg | sed -r 's/-[^-]*\.pkg\.tar(\.(xz|zst))?(\.sig)?$//' | sort -u
 
-	for ROOT in $@
-	do
-		pacman -Q -r $ROOT | tr ' ' '-'
-	done | sort -u
+	pacman -Q | tr ' ' '-'
 }
 
 for PACKAGE in $(list $@ | sort | uniq -u)

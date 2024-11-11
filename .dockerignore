@@ -1,5 +1,4 @@
 /.git
 /out
-/pkg-boot
-/pkg-system
-/root
+/pkg
+/src

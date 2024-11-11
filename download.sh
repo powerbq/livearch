@@ -4,8 +4,6 @@ set -e
 
 echo $0
 
-cd $(dirname $0)
-
 BASEURL=https://mirrors.kernel.org/archlinux/iso
 RELEASE=$(wget -q -O - $BASEURL | grep -Eo '"20.+"' | tr -d '"/' | tail -n1)
 FILENAME=archlinux-bootstrap-$RELEASE-x86_64.tar.zst

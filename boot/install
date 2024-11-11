@@ -9,25 +9,4 @@ build() {
 	add_runscript
 
 	cp -a /usr/local/src/build/patch $BUILDROOT/patch
-
-	local TEMP=$(mktemp -d)
-	chmod 755 $TEMP
-
-	mkdir -p $TEMP/usr/lib/modules/$KERNELVERSION
-	cp -a /usr/lib/modules/$KERNELVERSION/. $TEMP/usr/lib/modules/$KERNELVERSION/
-
-	rm $TEMP/usr/lib/modules/$KERNELVERSION/pkgbase
-	rm $TEMP/usr/lib/modules/$KERNELVERSION/vmlinuz
-	find $TEMP/usr/lib/modules/$KERNELVERSION -type f -name '*.ko.xz' -exec xz -d {} \;
-	find $TEMP/usr/lib/modules/$KERNELVERSION -type f -name '*.ko.gz' -exec gzip -d {} \;
-	find $TEMP/usr/lib/modules/$KERNELVERSION -type f -name '*.ko.zst' -exec zstd -d --rm -q {} \;
-
-	local PRESET=$(cat /usr/lib/modules/$KERNELVERSION/pkgbase)
-	local FILENAME=modules-$PRESET-$KERNELVERSION.squashfs
-
-	rm -f /boot/$FILENAME*
-	mksquashfs $TEMP /boot/$FILENAME -no-xattrs -no-progress -b ${SQUASHFS_BLOCK_SIZE} -comp ${SQUASHFS_COMP} ${SQUASHFS_ADDITIONAL_OPTIONS}
-	cat /boot/$FILENAME | sha256sum | sed "s/-/$FILENAME/" > /boot/$FILENAME.sha256sum
-
-	rm -Rf $TEMP
 }

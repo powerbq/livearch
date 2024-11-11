@@ -4,59 +4,30 @@ set -e
 
 echo $0
 
-cd $(dirname $0)
-
-sudo pacman -Syu --noconfirm base-devel git
-
-export PKGDEST=$(pwd)/opt/pkg-built
-
-sudo mkdir -p $PKGDEST
-sudo chown $(id -u):$(id -g) $PKGDEST
-
-if test -d kernels
+if test $(id -u) = 0
 then
-	sudo chown -R $(id -u):$(id -g) kernels
-	cd kernels
+	USERID=60000
+	GROUPID=60000
+	USERNAME=build
 
-	for PKGBASE in *
-	do
-		cd $PKGBASE
+	pacman -Syu --noconfirm base-devel git
 
-		tar -zxpf pkgroot.tar.gz
-		rm -Rf pkgroot.tar.gz
+	groupadd -g $GROUPID $USERNAME
+	useradd -u $USERID -g $GROUPID -m $USERNAME
+	echo "$USERNAME ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME
 
-		VMLINUZ=$(find boot -type f -maxdepth 1 -name 'vmlinuz-*' | tail -n 1)
-		MODULES=$(find lib/modules -type d -mindepth 2 -maxdepth 2 -name kernel | tail -n 1 | xargs -r -n 1 dirname)
+	chown -R $USERNAME:$USERNAME aur
+	chown -R $USERNAME:$USERNAME src
 
-		echo $PKGBASE > $MODULES/pkgbase
-		mv $VMLINUZ $MODULES/vmlinuz
-		rm -Rf boot
+	su -c $0 $USERNAME
 
-		cat > PKGBUILD << EOF
-pkgname=linux-$PKGBASE
-pkgver=latest
-pkgrel=1
-arch=(x86_64)
-depends=(coreutils initramfs kmod)
-options=(!strip)
+	rm /etc/sudoers.d/$USERNAME
 
-package() {
-	mkdir ../pkg/linux-$PKGBASE/usr
-	cp -a ../lib ../pkg/linux-$PKGBASE/usr/
-}
-EOF
-
-		makepkg -cs --noconfirm
-
-		cd ..
-	done
-
-	cd ..
+	exit 0
 fi
 
 if test -n "${AUR_PACKAGES}"
 then
-	sudo chown -R $(id -u):$(id -g) aur
 	cd aur
 
 	for AUR_PACKAGE in ${AUR_PACKAGES}
@@ -70,8 +41,7 @@ then
 
 		export SRCDEST=$(pwd)/../../src/${AUR_PACKAGE}
 
-		sudo mkdir -p $SRCDEST
-		sudo chown $(id -u):$(id -g) $SRCDEST
+		mkdir -p $SRCDEST
 
 		makepkg -cis --skippgpcheck --noconfirm
 

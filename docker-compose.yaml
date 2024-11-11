@@ -1,21 +1,13 @@
 version: '3.6'
 
 services:
-  livearch-system:
+  livearch:
     build:
       context: .
-    entrypoint: ./system.sh
     volumes:
-      - ./src-system:/usr/local/src/build/src
-      - ./pkg-system:/var/cache/pacman/pkg
+      - ./src:/usr/local/src/build/src
+      - ./pkg:/var/cache/pacman/pkg
       - ./out:/usr/local/src/build/out
-      - ./root:/usr/local/src/build/root
-
-  livearch-boot:
-    build:
-      context: .
-    entrypoint: ./boot.sh
-    volumes:
-      - ./src-boot:/usr/local/src/build/src
-      - ./pkg-boot:/var/cache/pacman/pkg
-      - ./out:/usr/local/src/build/out
+    tmpfs:
+      - /run
+      - /tmp

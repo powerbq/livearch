@@ -1,10 +1,7 @@
 /out/
-/pkg-boot/
-/pkg-system/
-/root/
+/pkg/
 /aur/*/
-/src-boot/
-/src-system/
+/src/
 /opt/pkg-deps/*.pkg.*
 /opt/pkg-nodeps/*.pkg.*
 /PKGBUILD-*

@@ -113,31 +113,6 @@ prepare_root() {
 		exit 1
 	fi
 
-	if ! test -f $ROOT/var/.postinst
-	then
-		touch $ROOT/var/.postinst
-
-		mkdir $ROOT/usr/local/etc/livearch.d
-		cp -a /patch/usr/local/etc/livearch.d/config $ROOT/usr/local/etc/livearch.d/
-		cp -a /patch/usr/local/etc/postinst $ROOT/usr/local/etc/
-		cp -a /patch/usr/local/sbin/postinst.sh $ROOT/usr/local/sbin/
-		cp -a /patch/usr/local/sbin/posthooks.py $ROOT/usr/local/sbin/
-
-		if test -f /etc/plymouth/plymouthd.conf && test -f $ROOT/etc/plymouth/plymouthd.conf
-		then
-			cat /etc/plymouth/plymouthd.conf > $ROOT/etc/plymouth/plymouthd.conf
-		fi
-
-		chroot $ROOT /usr/local/etc/postinst > $ROOT/var/log/postinst.log 2>&1
-
-		rm -Rf $ROOT/usr/local/etc/livearch.d
-		rm $ROOT/usr/local/etc/postinst
-		rm $ROOT/usr/local/sbin/postinst.sh
-		rm $ROOT/usr/local/sbin/posthooks.py
-
-		cp -a /live-media/upperdir /live-media/postinst
-	fi
-
 	if ! test -f $ROOT/var/.preboot
 	then
 		touch $ROOT/var/.preboot

@@ -12,6 +12,8 @@ then
 
 	pacman -Syu --noconfirm base-devel git
 
+	sed -i -e '/^OPTIONS=/s/debug/!debug/' /etc/makepkg.conf
+
 	groupadd -g $GROUPID $USERNAME
 	useradd -u $USERID -g $GROUPID -m $USERNAME
 	echo "$USERNAME ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME
@@ -22,6 +24,8 @@ then
 	su -c $0 $USERNAME
 
 	rm /etc/sudoers.d/$USERNAME
+
+	userdel -r $USERNAME
 
 	exit 0
 fi
@@ -43,7 +47,7 @@ then
 
 		mkdir -p $SRCDEST
 
-		makepkg -cis --skippgpcheck --noconfirm
+		makepkg -srci --skippgpcheck --noconfirm
 
 		cd ..
 	done

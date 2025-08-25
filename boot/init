@@ -105,7 +105,7 @@ prepare_root() {
 
 	mkdir -p /live-media/upperdir /live-media/workdir
 
-	mount -t overlay -o lowerdir=$LOWERDIR,upperdir=/live-media/upperdir,workdir=/live-media/workdir none $ROOT
+	mount -t overlay -o index=off,lowerdir=$LOWERDIR,upperdir=/live-media/upperdir,workdir=/live-media/workdir none $ROOT
 
 	if ! test -f $ROOT/sbin/init
 	then

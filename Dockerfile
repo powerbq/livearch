@@ -11,9 +11,9 @@ FROM scratch
 COPY --from=init /root.x86_64/ /
 RUN pacman-key --init \
 	&& pacman-key --populate archlinux \
-	&& sed -i -r 's|^#(Server = http://mirrors.kernel.org/)|\1|' /etc/pacman.d/mirrorlist \
+	&& sed -i -r 's|^#(Server = https://mirrors.kernel.org/)|\1|' /etc/pacman.d/mirrorlist \
 	&& sed -i -r -z 's|\n#([[]multilib[]])\n#|\n\1\n|' /etc/pacman.conf \
-	&& sed -i -r 's|^(CheckSpace)$|#\1|' /etc/pacman.conf
+	&& sed -i -r 's|^(CheckSpace)$|DisableSandbox|' /etc/pacman.conf
 WORKDIR /usr/local/src/build
 COPY aur/ aur/
 COPY opt/ opt/
@@ -27,6 +27,7 @@ COPY boot/hook.preset /etc/mkinitcpio.d/linux.preset
 ENTRYPOINT ["./entrypoint.sh"]
 
 ENV LC_ALL=C
+ENV PACMAN_DISABLE_LANDLOCK=1
 ENV MIRROR_COUNTRY_CODE=
 ENV AUR_PACKAGES=
 ENV BOOT_SKIP_HOOKS=

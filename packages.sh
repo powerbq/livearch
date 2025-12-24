@@ -12,6 +12,10 @@ do
 	source $PKGBUILD
 done
 
+cat > /etc/vconsole.conf <<EOF
+KEYMAP=us
+EOF
+
 pacman -Syu --noconfirm --needed base linux linux-firmware intel-ucode amd-ucode ${depends[*]}
 
 if test "${PLYMOUTH_INSTALL}" = yes

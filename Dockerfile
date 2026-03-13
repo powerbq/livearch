@@ -11,7 +11,7 @@ FROM scratch
 COPY --from=init /root.x86_64/ /
 RUN pacman-key --init \
 	&& pacman-key --populate archlinux \
-	&& sed -i -r 's|^#(Server = https://mirrors.kernel.org/)|\1|' /etc/pacman.d/mirrorlist \
+	&& sed -i -r 's|^#(Server = https://)|\1|' /etc/pacman.d/mirrorlist \
 	&& sed -i -r -z 's|\n#([[]multilib[]])\n#|\n\1\n|' /etc/pacman.conf \
 	&& sed -i -r 's|^(CheckSpace)$|DisableSandbox|' /etc/pacman.conf
 WORKDIR /usr/local/src/build
@@ -21,8 +21,11 @@ COPY patch/ patch/
 COPY PKGBUILD-* boot.sh cleanup.sh custom.sh entrypoint.sh mirror.sh packages.sh save.sh excludes.txt .
 COPY boot/init /usr/share/livearch/init
 COPY boot/install /usr/lib/initcpio/install/livearch
+COPY boot/sd-install /usr/lib/initcpio/install/sd-livearch
 COPY boot/runscript /usr/lib/initcpio/hooks/livearch
 COPY boot/hook.preset /etc/mkinitcpio.d/linux.preset
+COPY boot/initrd-livearch.service /usr/lib/systemd/system/initrd-livearch.service
+COPY boot/initrd-root-fs.target.wants /usr/lib/systemd/system/initrd-root-fs.target.wants
 
 ENTRYPOINT ["./entrypoint.sh"]
 

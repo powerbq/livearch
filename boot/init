@@ -96,14 +96,9 @@ prepare_root() {
 		exit 1
 	fi
 
-	if test -d /postinst
-	then
-		test -d /live-media/upperdir || cp -a /postinst /live-media/upperdir
-
-		rm -Rf /postinst
-	fi
-
 	mkdir -p /live-media/upperdir /live-media/workdir
+
+	mkdir -p $ROOT
 
 	mount -t overlay -o index=off,lowerdir=$LOWERDIR,upperdir=/live-media/upperdir,workdir=/live-media/workdir none $ROOT
 
@@ -125,7 +120,8 @@ prepare_root() {
 	rm -Rf /patch
 
 	mkdir -p $ROOT/live-media
-	mount -M /live-media $ROOT/live-media
+	mount --rbind /live-media $ROOT/live-media
+	mount --make-rprivate $ROOT/live-media
 }
 
 prepare_root

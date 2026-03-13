@@ -6,8 +6,8 @@ build() {
 
 	add_file /usr/share/livearch/init
 
-	add_runscript
-#	add_systemd_unit initrd-livearch.service
+#	add_runscript
+	add_systemd_unit initrd-livearch.service
 
 	cp -a /usr/local/src/build/patch $BUILDROOT/patch
 }

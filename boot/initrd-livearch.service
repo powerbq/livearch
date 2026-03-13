@@ -1,0 +1,17 @@
+[Unit]
+Description=LiveArch
+DefaultDependencies=no
+AssertPathExists=/etc/initrd-release
+OnFailure=emergency.target
+OnFailureJobMode=replace-irreversibly
+Conflicts=emergency.target
+After=systemd-udev-trigger.service systemd-udev-settle.service
+Before=initrd-root-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=ROOT=/sysroot
+ExecStart=/usr/share/livearch/init
+StandardOutput=journal+console
+StandardError=journal+console

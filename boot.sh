@@ -12,7 +12,7 @@ then
 	BOOT_ADD_HOOKS="plymouth,${BOOT_ADD_HOOKS}"
 fi
 
-sed -i 's/^default_options=.*$/default_options="-S ${BOOT_SKIP_HOOKS}autodetect -A ${BOOT_ADD_HOOKS}livearch"/' /etc/mkinitcpio.d/linux.preset
+sed -i "s/^default_options=.*\$/default_options=\"-S ${BOOT_SKIP_HOOKS}autodetect -A ${BOOT_ADD_HOOKS}sd-livearch\"/" /etc/mkinitcpio.d/linux.preset
 
 mkinitcpio -P
 

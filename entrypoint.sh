@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -o pipefail
 
 FLAGFILE=.already-run-before
 LOGFILE=/var/log/livearch-build.log

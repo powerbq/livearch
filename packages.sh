@@ -7,6 +7,9 @@ echo $0
 depends=(
 )
 
+conflicts=(
+)
+
 for PKGBUILD in $(find . -maxdepth 1 -type f -name 'PKGBUILD-*' | sort)
 do
 	source $PKGBUILD
@@ -18,17 +21,10 @@ EOF
 
 pacman -Syu --noconfirm --needed base linux linux-firmware intel-ucode amd-ucode ${depends[*]}
 
-if test "${PLYMOUTH_INSTALL}" = yes
+LIST=${conflicts[*]}
+if test -n "$LIST"
 then
-	pacman -Syu --noconfirm plymouth
-
-	if test -n "${BOOT_PLYMOUTH_THEME}"
-	then
-		cat > /etc/plymouth/plymouthd.conf << EOF
-[Daemon]
-Theme=${BOOT_PLYMOUTH_THEME}
-EOF
-	fi
+	pacman -Rcn --noconfirm $LIST
 fi
 
 LIST=$(find opt/pkg-deps -maxdepth 1 -type f -name '*.pkg.*')

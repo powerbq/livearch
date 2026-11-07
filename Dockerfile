@@ -17,7 +17,7 @@ RUN pacman-key --init \
 WORKDIR /usr/local/src/build
 COPY aur/ aur/
 COPY opt/ opt/
-COPY patch/ patch/
+COPY patch/ /usr/share/livearch/patch/
 COPY PKGBUILD-* boot.sh cleanup.sh custom.sh entrypoint.sh mirror.sh packages.sh save.sh excludes.txt .
 COPY boot/init /usr/share/livearch/init
 COPY boot/install /usr/lib/initcpio/install/livearch
@@ -35,8 +35,6 @@ ENV MIRROR_COUNTRY_CODE=
 ENV AUR_PACKAGES=
 ENV BOOT_SKIP_HOOKS=
 ENV BOOT_ADD_HOOKS=
-ENV BOOT_PLYMOUTH_THEME=
-ENV PLYMOUTH_INSTALL=yes
 ENV FILENAME_SUFFIX=latest
 ENV SQUASHFS_BLOCK_SIZE=128K
 ENV SQUASHFS_COMP=zstd

@@ -49,6 +49,12 @@ then
 
 		makepkg -srci --skippgpcheck --noconfirm
 
+		find $SRCDEST -mindepth 1 -maxdepth 1 -name '* *' -exec rm -Rfv {} \;
+		(
+			find $SRCDEST -mindepth 1 -maxdepth 1
+			makepkg --nobuild --skippgpcheck --verifysource 2>&1 | grep -F ' ... ' | grep -E ' Passed$' | awk "{print \"$SRCDEST/\"\$1}"
+		) | sort | uniq -u | xargs rm -Rfv
+
 		cd ..
 	done
 fi

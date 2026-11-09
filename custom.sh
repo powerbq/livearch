@@ -20,6 +20,9 @@ then
 
 	chown -R $USERNAME:$USERNAME aur
 	chown -R $USERNAME:$USERNAME src
+	chown -R $USERNAME:$USERNAME opt/pkg-custom
+
+	find opt/pkg-custom -mindepth 1 -maxdepth 1 -exec rm -Rf {} \;
 
 	su -c $0 $USERNAME
 
@@ -29,6 +32,14 @@ then
 
 	exit 0
 fi
+
+(
+find src -mindepth 1 -maxdepth 1
+for AUR_PACKAGE in ${AUR_PACKAGES}
+do
+	echo src/$AUR_PACKAGE
+done
+) | sort | uniq -u | xargs rm -Rfv
 
 if test -n "${AUR_PACKAGES}"
 then
@@ -43,6 +54,7 @@ then
 
 		cd ${AUR_PACKAGE}
 
+		export PKGDEST=$(pwd)/../../opt/pkg-custom
 		export SRCDEST=$(pwd)/../../src/${AUR_PACKAGE}
 
 		mkdir -p $SRCDEST

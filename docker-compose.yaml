@@ -1,11 +1,57 @@
 services:
-  livearch:
+  livearch-init:
     build:
       context: .
     volumes:
-      - ./src:/usr/local/src/build/src
-      - ./pkg:/var/cache/pacman/pkg
-      - ./out:/usr/local/src/build/out
+      - ./volumes/out:/usr/local/src/build/out
     tmpfs:
       - /run
-      - /tmp
+      - /tmp:exec
+    command: init
+
+  livearch-custom:
+    build:
+      context: .
+    volumes:
+      - ./volumes/src:/usr/local/src/build/src
+      - ./volumes/pkg-custom:/var/cache/pacman/pkg
+      - ./volumes/out:/usr/local/src/build/out
+      - pkg-custom:/usr/local/src/build/opt/pkg-custom
+    tmpfs:
+      - /run
+      - /tmp:exec
+    command: custom
+    depends_on:
+      livearch-init:
+        condition: service_completed_successfully
+
+  livearch-system:
+    build:
+      context: .
+    volumes:
+      - ./volumes/pkg-system:/var/cache/pacman/pkg
+      - ./volumes/out:/usr/local/src/build/out
+      - pkg-custom:/usr/local/src/build/opt/pkg-custom
+    tmpfs:
+      - /run
+      - /tmp:exec
+    command: system
+    depends_on:
+      livearch-custom:
+        condition: service_completed_successfully
+
+  livearch-success:
+    build:
+      context: .
+    volumes:
+      - ./volumes/out:/usr/local/src/build/out
+    tmpfs:
+      - /run
+      - /tmp:exec
+    command: success
+    depends_on:
+      livearch-system:
+        condition: service_completed_successfully
+
+volumes:
+  pkg-custom:

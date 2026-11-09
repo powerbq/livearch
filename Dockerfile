@@ -1,20 +1,7 @@
-FROM alpine AS init
-WORKDIR /usr/local/src/build
-COPY download.sh archlinux-bootstrap-*-x86_64.tar.zst archlinux-bootstrap-*-x86_64.tar.zst.sha256sum .
-RUN apk add --no-cache zstd
-RUN ./download.sh \
-	&& zstd -dck archlinux-bootstrap-*-x86_64.tar.zst | tar -xp -f - -C / \
-	&& rm *.tar.zst *.tar.zst.sha256sum \
-	&& rm download.sh
+FROM archlinux:base
 
-FROM scratch
-COPY --from=init /root.x86_64/ /
-RUN pacman-key --init \
-	&& pacman-key --populate archlinux \
-	&& sed -i -r 's|^#(Server = https://)|\1|' /etc/pacman.d/mirrorlist \
-	&& sed -i -r -z 's|\n#([[]multilib[]])\n#|\n\1\n|' /etc/pacman.conf \
-	&& sed -i -r 's|^(CheckSpace)$|DisableSandbox|' /etc/pacman.conf
 WORKDIR /usr/local/src/build
+
 COPY aur/ aur/
 COPY opt/ opt/
 COPY patch/ /usr/share/livearch/patch/
@@ -30,7 +17,6 @@ COPY boot/initrd-root-fs.target.wants /usr/lib/systemd/system/initrd-root-fs.tar
 ENTRYPOINT ["./entrypoint.sh"]
 
 ENV LC_ALL=C
-ENV PACMAN_DISABLE_LANDLOCK=1
 ENV MIRROR_COUNTRY_CODE=
 ENV AUR_PACKAGES=
 ENV BOOT_SKIP_HOOKS=

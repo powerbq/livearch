@@ -10,7 +10,13 @@ list() {
 	pacman -Q | tr ' ' '-'
 }
 
+unneeded() {
+	pacman -Qeq | grep -vxf <(pacman -Qq base)
+}
+
 for PACKAGE in $(list $@ | sort | uniq -u)
 do
 	rm -fv /var/cache/pacman/pkg/$PACKAGE*
 done
+
+pacman -Rns --noconfirm $(unneeded)

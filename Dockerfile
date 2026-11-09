@@ -17,6 +17,7 @@ RUN pacman-key --init \
 WORKDIR /usr/local/src/build
 COPY aur/ aur/
 COPY opt/ opt/
+RUN mkdir opt/pkg-custom
 COPY patch/ /usr/share/livearch/patch/
 COPY PKGBUILD-* boot.sh cleanup.sh custom.sh entrypoint.sh mirror.sh packages.sh save.sh excludes.txt .
 COPY boot/init /usr/share/livearch/init

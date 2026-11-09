@@ -38,3 +38,9 @@ if test -n "$LIST"
 then
 	pacman -Udd --noconfirm $LIST
 fi
+
+LIST=$(find opt/pkg-custom -maxdepth 1 -type f -name '*.pkg.*')
+if test -n "$LIST"
+then
+	pacman -U --noconfirm $LIST
+fi
